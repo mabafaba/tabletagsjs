@@ -94,6 +94,7 @@ class TableTags {
         var table = document.createElement('table');
         table.id = 'TableTagsTable';
         this.parentNode.appendChild(table);
+
         // Create the table body
         var tbody = document.createElement('tbody');
         table.appendChild(tbody);
@@ -148,17 +149,7 @@ class TableTags {
         
         td2.appendChild(featureValueInput);
         tr.appendChild(td2);
-        
-        // Create the third column for the remove feature button
-        var td3 = document.createElement('td');
-        var button = document.createElement('button');
-        
-        // set button to call this objects removeRow method with the index of the feature to remove
-        button.addEventListener('click', () => this.removeRow(id));
-        button.innerText = 'x';
-        td3.appendChild(button);
-        tr.appendChild(td3);
-        
+                
         // Add the created feature row to the array of features
         this.rows.push(tr);
         
@@ -172,40 +163,62 @@ class TableTags {
         // Return the created table row
 
         // add event listener for editing the row
-        featureNameInput.addEventListener('input', () => this.#onRowEdit(id, featureNameInput.value, featureValueInput.tagify.value));
-        featureValueInput.tagify.on('remove', () => this.#onRowEdit(id, featureNameInput.value, featureValueInput.tagify.value));
+        featureNameInput.addEventListener('input', () => this.#onRowEdit(id, 'name',featureNameInput.value, featureValueInput.tagify.value));
+        featureValueInput.tagify.on('change', () => this.#onRowEdit(id, 'tags',featureNameInput.value, featureValueInput.tagify.value));
 
         return tr;
     }
 
-    #onRowEdit(id, name, values) {
+    #onRowEdit(id, editingWhat, name, values) {
         console.log('Row edited:', id, name, values);
-        this.#removeEmptyRows();
-        this.#addEmptyRowToEnd();
-    }
+        // make sure there is always one empty row at the end of the table            
+        this.#haveOneEmptyRowToEnd();
+        // if row is now empty, remove it
+        if (name == '' && values.length == 0) {
+            // remove the row
+            console.log('Row is empty, removing:', id);
+            this.removeRow(id);
 
-    #removeEmptyRows() {
-        // Description: Remove empty rows from the table
-        // Logic:
-        // 1. Get all rows from the table
-        // 2. Loop over the rows and check if the feature name and values are empty
-        // 3. Remove the row if both the feature name and values are empty, except for the last row
-
-        // get all rows
-        var rows = this.parentNode.getElementsByTagName('tr');
-        // loop over rows and remove empty rows
-        for (var i = 0; i < rows.length - 1; i++) {
-            var featureName = rows[i].getElementsByTagName('td')[0].getElementsByTagName('input')[0].value;
-            var featureValues = rows[i].getElementsByTagName('td')[1].getElementsByTagName('input')[0].value;
-            if (featureName == '' && featureValues.length == 0) {
-                console.log('Removing empty row:', i);
-                this.parentNode.getElementsByTagName('tbody')[0].removeChild(rows[i]);
-                this.rows.splice(i, 1);
+            // focus on the new empty row, either on the name or the tag input depending on which was just emptied
+            var rows = this.parentNode.getElementsByTagName('tr');
+            var lastRow = rows[rows.length - 1];
+            if(editingWhat == 'name'){
+                lastRow.getElementsByTagName('td')[0].getElementsByTagName('input')[0].focus();
+            }
+            if(editingWhat == 'tags'){
+                lastRow.getElementsByTagName('td')[1].getElementsByTagName('input')[0].focus();
             }
         }
+
+        
+        
     }
 
-    #addEmptyRowToEnd() {
+    removeRow(id) {
+        console.log('removing row', id);
+
+        // Description: Remove a feature row from the table
+        // Parameters:
+        // - id: number - The ID of the row to remove. this is not the array index but the id number stored in the row element.
+        // Logic:
+        // 1. Find the index of the row with the matching ID in the array of rows
+        // 2. Remove the row from the table body
+
+        // Remove the feature from the array of features where the id matches
+        var index = this.rows.findIndex(f => f.id == id);
+        console.log('Removing row:', index, 'from array:', this.rows);
+        
+        this.rows.splice(index, 1);
+        // Remove the row from the table body
+        var row = document.getElementById(id);
+        console.log('Removing row:', row);
+        row.parentNode.removeChild(row);
+
+
+
+    }
+
+    #haveOneEmptyRowToEnd() {
         // Description: Add an empty row to the end of the table
         // Logic:
         // 1. Get the last row from the table
@@ -223,24 +236,6 @@ class TableTags {
     }
 
 
-    
-    removeRow(id) {
-        // Description: Remove a feature row from the table
-        // Parameters:
-        // - id: number - The ID of the row to remove. this is not the array index but the id number stored in the row element.
-        // Logic:
-        // 1. Find the index of the row with the matching ID in the array of rows
-        // 2. Remove the row from the table body
-        
-        
-        // Remove the feature from the array of features where the id matches
-        var index = this.rows.findIndex(f => f.id == id);
-        
-        // Remove the feature from the table
-        this.parentNode.getElementsByTagName('tbody')[0].removeChild(this.rows[index]);
-        
-    }
-    
     get data() {
         // Description: Get the data from the table as an array of objects with feature names and values
         // Logic:

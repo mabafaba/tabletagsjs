@@ -261,6 +261,11 @@ class TableTags {
             }
             
             features.push({ name: featureName, values: featureValues });
+
+        }
+        // double check last row is empty as expected and remove it if it is.
+        if (features[features.length - 1].name == '' && features[features.length - 1].values.length == 0) {
+            features.pop(); // pop means remove last element
         }
         return features;
     }

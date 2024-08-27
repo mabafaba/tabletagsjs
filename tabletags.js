@@ -97,12 +97,6 @@ class TableTags {
         // Create the table body
         var tbody = document.createElement('tbody');
         table.appendChild(tbody);
-        // button that adds a new feature at the end of the table
-        var button = document.createElement('button');
-        
-        button.innerText = '+';
-        button.addEventListener('click', () => this.addRow());
-        this.parentNode.appendChild(button);
         this.addRow('', []);
     }    
     
@@ -119,6 +113,7 @@ class TableTags {
         // 5. Add the feature row to the array of rows
         // 6. Append the feature row to the table body
         // 7. Initialize the tagify input field for the feature values
+        // 8. Add an event listener that keeps one empty row at the end of the table and otherwise removes empty rows
         // 8. Return the created table row
         
         // Create a new table row for the feature
@@ -144,6 +139,9 @@ class TableTags {
         td2.classList.add('featureValues');
         var featureValueInput = document.createElement('input');
         featureValueInput.setAttribute('placeholder', 'options');
+        // make placeholder text gray
+        featureValueInput.style.color = 'gray';
+
         featureValueInput.classList.add('tagifyInputField');
         // default content
         
@@ -172,8 +170,59 @@ class TableTags {
         // add example values
         featureValueInput.tagify.addTags(values.map(value => ({ value: value })));
         // Return the created table row
+
+        // add event listener for editing the row
+        featureNameInput.addEventListener('input', () => this.#onRowEdit(id, featureNameInput.value, featureValueInput.tagify.value));
+        featureValueInput.tagify.on('remove', () => this.#onRowEdit(id, featureNameInput.value, featureValueInput.tagify.value));
+
         return tr;
     }
+
+    #onRowEdit(id, name, values) {
+        console.log('Row edited:', id, name, values);
+        this.#removeEmptyRows();
+        this.#addEmptyRowToEnd();
+    }
+
+    #removeEmptyRows() {
+        // Description: Remove empty rows from the table
+        // Logic:
+        // 1. Get all rows from the table
+        // 2. Loop over the rows and check if the feature name and values are empty
+        // 3. Remove the row if both the feature name and values are empty, except for the last row
+
+        // get all rows
+        var rows = this.parentNode.getElementsByTagName('tr');
+        // loop over rows and remove empty rows
+        for (var i = 0; i < rows.length - 1; i++) {
+            var featureName = rows[i].getElementsByTagName('td')[0].getElementsByTagName('input')[0].value;
+            var featureValues = rows[i].getElementsByTagName('td')[1].getElementsByTagName('input')[0].value;
+            if (featureName == '' && featureValues.length == 0) {
+                console.log('Removing empty row:', i);
+                this.parentNode.getElementsByTagName('tbody')[0].removeChild(rows[i]);
+                this.rows.splice(i, 1);
+            }
+        }
+    }
+
+    #addEmptyRowToEnd() {
+        // Description: Add an empty row to the end of the table
+        // Logic:
+        // 1. Get the last row from the table
+        // 2. Check if the feature name and values are empty
+        // 3. Add a new empty row if the last row is not empty
+
+        // get last row
+        var rows = this.parentNode.getElementsByTagName('tr');
+        var lastRow = rows[rows.length - 1];
+        var featureName = lastRow.getElementsByTagName('td')[0].getElementsByTagName('input')[0].value;
+        var featureValues = lastRow.getElementsByTagName('td')[1].getElementsByTagName('input')[0].value;
+        if (featureName != '' || featureValues != '') {
+            this.addRow();
+        }
+    }
+
+
     
     removeRow(id) {
         // Description: Remove a feature row from the table

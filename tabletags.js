@@ -103,7 +103,7 @@ class TableTags {
         button.innerText = '+';
         button.addEventListener('click', () => this.addRow());
         this.parentNode.appendChild(button);
-        this.addRow('garbage can', ['recycle', 'compost', 'landfill']);
+        this.addRow('', []);
     }    
     
     addRow(name = '', values = []) {

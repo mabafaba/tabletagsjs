@@ -13,5 +13,7 @@
 
 <script>
     var container = document.getElementById('myTableTagsContainer');
-    var tableTags = new TableTags(container);
-</script>
+    var tableTags = new TableTags( container,
+        initialRows = [{name:'test',values: ['some', 'tags']}]
+    );
+ </script>

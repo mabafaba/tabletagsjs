@@ -18,7 +18,7 @@
 // </script>
 
 class TableTags {
-    constructor(parentNode) {
+    constructor(parentNode, initialRows) {
         // throw error if parentNode is not an element
         if (!(parentNode instanceof Element)) {
             throw new Error(`input to TableTags can't be ${typeof parentNode}, must be an element`);
@@ -26,12 +26,20 @@ class TableTags {
 
         this.parentNode = parentNode;
         this.rows = [];
-        this.#loadDependencies().then(() => {
-            this.#initializeTableTagsUI();
-        })
+        this.#loadDependencies()
         .catch((error) => {
             console.error('Failed to load dependencies:', error.message);
-        });
+        }).then(() => {
+            this.#initializeTableTagsUI()
+            // add initial rows if provided
+            if (initialRows) {
+                initialRows.forEach((row) => {
+                    this.addRow(row.name, row.values);
+                });
+            }
+            // add one empty row to start
+            this.addRow();
+        })
         
         
         // add html elements to the parent node
@@ -97,7 +105,6 @@ class TableTags {
         // Create the table body
         var tbody = document.createElement('tbody');
         table.appendChild(tbody);
-        this.addRow('', []);
     }    
     
     addRow(name = '', values = []) {

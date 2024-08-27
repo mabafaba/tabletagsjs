@@ -88,7 +88,6 @@ class TableTags {
         // Description: Create a table with UI elements and event listeners
         // 1. Create a table element and append it to the parent node
         // 2. Create a tbody element and append it to the table
-        // 3. Create a button element for adding a new feature row and append it to the parent node
         
         // Create the table
         var table = document.createElement('table');
@@ -110,7 +109,6 @@ class TableTags {
         // 1. Create a new table row element for the feature
         // 2. Generate a unique ID for the row
         // 3. Create input fields for the feature name and values
-        // 4. Create a button for removing the feature row
         // 5. Add the feature row to the array of rows
         // 6. Append the feature row to the table body
         // 7. Initialize the tagify input field for the feature values
@@ -186,7 +184,9 @@ class TableTags {
                 lastRow.getElementsByTagName('td')[0].getElementsByTagName('input')[0].focus();
             }
             if(editingWhat == 'tags'){
-                lastRow.getElementsByTagName('td')[1].getElementsByTagName('input')[0].focus();
+                // lastRow.getElementsByTagName('td')[1].getElementsByTagName('input')[0].focus();
+                // set focus to name regardless because tagify has weird bug where when setting focus it breaks
+                lastRow.getElementsByTagName('td')[0].getElementsByTagName('input')[0].focus();
             }
         }
 
